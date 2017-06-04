@@ -1,3 +1,4 @@
+#coding=utf-8
 """
 Django settings for shopping_web project.
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = (
     'df_goods',
     'df_order',
     'df_user',
+    'tinymce'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,10 +107,20 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, static/images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
+#开发阶段上传文件目录
+MEDIA_ROOT=os.path.join(BASE_DIR,'static')
+#布署后的上传文件目录
+# MEDIA_ROOT='/var/www/dailyfresh/static'
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}
