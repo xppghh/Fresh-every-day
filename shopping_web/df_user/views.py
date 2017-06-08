@@ -4,6 +4,8 @@ from hashlib import sha1
 from models import *
 from django.http import JsonResponse,HttpResponseRedirect
 import user_decorator
+from df_cart.models import CartInfo
+from df_goods.models import GoodsInfo
 
 # Create your views here.
 
@@ -78,12 +80,31 @@ def logout(request):
 #user_center_info()
 def user_center_info(request):
     user=UserInfo.objects.get(id=request.session['user_id'])
-    context={'user':user,'title':'用户中心'}
+    if request.session['user_id'] == '':
+        cart_count=0
+    else:
+        cart_count=CartInfo.objects.filter(user_id=request.session['user_id']).count()
+    goods_ids=request.COOKIES.get('liulan','')
+
+    goods_list=[]
+    if goods_ids != '':
+        goods_ids1 = goods_ids.split(',')
+        for goods_gid in goods_ids1:
+            goods_list.append(GoodsInfo.objects.get(id=int(goods_gid)))
+
+
+
+    context={'user':user,'title':'用户中心','cart_count':cart_count,'goods_list':goods_list}
+
     return render(request,'store/user_center_info.html',context)
 
 @user_decorator.login
 def user_center_order(request):
-    context={'title':'用户中心'}
+    if request.session['user_id'] == 0:
+        cart_count=0
+    else:
+        cart_count=CartInfo.objects.filter(user_id=request.session['user_id']).count()
+    context={'title':'用户中心','cart_count':cart_count}
     return render(request,'store/user_center_order.html',context)
 
 @user_decorator.login
@@ -96,5 +117,9 @@ def user_center_site(request):
         user.uyoubian=submitinfo.get('uyoubian')
         user.uphone=submitinfo.get('uphone')
         user.save()
-    context={'user':user,'title':'用户中心'}
+    if request.session['user_id']==0:
+        cart_count=0
+    else:
+        cart_count=CartInfo.objects.filter(user_id=request.session['user_id']).count()
+    context={'user':user,'title':'用户中心','cart_count':cart_count}
     return render(request,'store/user_center_site.html',context)

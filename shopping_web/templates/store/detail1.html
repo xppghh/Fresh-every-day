@@ -4,21 +4,53 @@
 <script type="text/javascript">
 	$(function(){
 	    $('.add').click(function () {
-	        num=parseFloat($('.num_show').val())
-			$('.num_show').val(num+1)
+	        kucun=parseInt($('.gkucun').children().text())
+	        num=parseInt($('.num_show').val())
+			num=num+1
+			if (num>kucun){
+	            num=kucun
+			}
+
+			$('.num_show').val(num)
 			price=parseFloat($('.show_pirze').children().text())
-			$('.total').children().text(((num+1)*price).toFixed(2))
+			$('.total').children().text(((num)*price).toFixed(2))
         })
 		$('.minus').click(function () {
 			num=parseFloat($('.num_show').val())
-			$('.num_show').val(num-1)
+			num=num-1
+			if (num<1){
+		        num=1
+			}
+			$('.num_show').val(num)
 			price=parseFloat($('.show_pirze').children().text())
-			$('.total').children().text(((num-1)*price).toFixed(2))
+			$('.total').children().text(((num)*price).toFixed(2))
         })
 		$('.num_show').blur(function () {
-			num=parseFloat($('.num_show').val())
+			num=parseInt($('.num_show').val())
+			kucun=parseInt($('.gkucun').children().text())
+			if (num<0){
+			    num=0
+			}
+			if(num>kucun){
+			    num=kucun
+			}
+			$('.num_show').val(num)
 			price=parseFloat($('.show_pirze').children().text())
 			$('.total').children().text((num*price).toFixed(2))
+        })
+
+		$('.add_cart').click(function () {
+			num=parseInt($('.num_show').val())
+			$.get('/cart/add{{goods.id}}_'+num+'/',function (data) {
+			    //转向订单页面
+				if(data.islogin==0){
+				    location.href='/login/'
+					return;
+				}
+				else {
+                    $('#show_count').text(data.count)
+                }
+            });
         })
 
 	})
@@ -46,6 +78,8 @@
 					<a href="javascript:;" class="add fr">+</a>
 					<a href="javascript:;" class="minus fr">-</a>
 				</div>
+				<span class="gkucun" style="display: inline-block;
+				margin-left: 50px;margin-top: 16px">库存:<em>{{goods.gkucun}}<em><span>
 			</div>
 			<div class="total">总价：<em>{{goods.gprice}}元</em></div>
 			<div class="operate_btn">
