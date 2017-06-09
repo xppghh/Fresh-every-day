@@ -34,7 +34,7 @@ def order(request):
         order.user=user_name
         order.oaddress=address
         order.oIsPay=False
-        order.data=now
+        order.odate=now
         order.ototal=0
         order.save()
 
@@ -51,7 +51,6 @@ def order(request):
 
                 orderdetail = OrderDetailInfo()
                 orderdetail.goods=cart.goods
-                print orderdetail.goods
                 orderdetail.order=order
                 orderdetail.price=cart.goods.gprice
                 orderdetail.count=cart.count
@@ -68,9 +67,29 @@ def order(request):
         order.ototal = totalprice
         order.save()
         transaction.savepoint_commit(sid)
-        return redirect('/order/')
+        return redirect('/show_order/')
     except:
         transaction.savepoint_rollback(sid)
         return redirect('/cart/')
 
     # return render(request,'store/user_center_order.html')
+
+def show_order(request):
+    orders=OrderInfo.objects.all()
+    #orderdetails_list=[]
+    # for order in orders:
+    #     orderdetails=order.orderdetailinfo_set.all()
+    #     orderdetails_list.append(orderdetails)
+    #     print orderdetails[0].count
+    context={'title':'全部订单','orders':orders}
+    return render(request,'store/user_center_order.html',context)
+def pay(request,oid):
+    # oid=request.GET.get('oper_btn')
+    orde=OrderInfo.objects.get(oid=oid)
+    orde.oIsPay=True
+    orde.save()
+
+
+    orders = OrderInfo.objects.all()
+    context = {'title': '全部订单', 'orders': orders}
+    return render(request,'store/user_center_order.html',context)

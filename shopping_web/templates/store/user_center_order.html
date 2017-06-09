@@ -1,5 +1,30 @@
 {%extends 'store/base.html'%}
+{%block head%}
+<script>
+	$(function () {
 
+        totals=0
+        $('.order_goods_list ').each(function () {
+            num=parseFloat($(this).children('.col03').children().text())
+            price=parseFloat($(this).children('.col02').children().children().text())
+            totalprice=num*price
+            $(this).children('.col04').text((totalprice).toFixed(2)+'元')
+        })
+		$('.order_list_th').each(function () {
+			alter=$(this).children('.stay1_pay').text()
+			if(alter == 'True'){
+			    $(this).children('.stay1_pay').text('已付款')
+				$(this).next().find('.stay2_pay').text('已付款')
+			}
+			else{
+			    $(this).children('.stay1_pay').text('未付款')
+				$(this).next().find('.stay2_pay').text('等待付款')
+			}
+        })
+
+    })
+</script>
+{%endblock head%}
 {%block content%}
 
 	<div class="main_con clearfix">
@@ -7,71 +32,41 @@
 			<h3>用户中心</h3>
 			<ul>
 				<li><a href="/info/">· 个人信息</a></li>
-				<li><a href="/order/" class="active">· 全部订单</a></li>
+				<li><a href="/show_order/" class="active">· 全部订单</a></li>
 				<li><a href="/site/">· 收货地址</a></li>
 			</ul>
 		</div>
 		<div class="right_content clearfix">
 				<h3 class="common_title2">全部订单</h3>
+			{%for order in orders%}
 				<ul class="order_list_th w978 clearfix">
-					<li class="col01">2016-8-21 17:36:24</li>
-					<li class="col02">订单号：56872934</li>
-					<li class="col02 stress">未支付</li>		
-				</ul>
-
-				<table class="order_list_table w980">
-					<tbody>
-						<tr>
-							<td width="55%">
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="/static/images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
-								</ul>
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="/static/images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
-								</ul>
-							</td>
-							<td width="15%">33.60元</td>
-							<td width="15%">待付款</td>
-							<td width="15%"><a href="#" class="oper_btn">去付款</a></td>
-						</tr>
-					</tbody>
-				</table>
-				
-				<ul class="order_list_th w978 clearfix">
-					<li class="col01">2016-8-21 17:36:24</li>
-					<li class="col02">订单号：56872934</li>
-					<li class="col02 stress">已支付</li>			
+					<li class="col01">{{order.odate}}</li>
+					<li class="col02">订单号：{{order.oid}}</li>
+					<li class="col02 stress stay1_pay">{{order.oIsPay}}</li>
 				</ul>
 				<table class="order_list_table w980">
 					<tbody>
-						<tr>
+					<tr>
 							<td width="55%">
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="/static/images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
+							{%for orderdetail in order.orderdetailinfo_set.all%}
+
+								<ul class="order_goods_list clearfix">
+									<li class="col01"><img src="/static/{{orderdetail.goods.gpic}}"></li>
+									<li class="col02">{{orderdetail.goods.gtitle|slice:'10' }}
+										<em><span>{{orderdetail.goods.gprice}}</span>元/{{orderdetail.goods.gunit}}</em></li>
+									<li class="col03"><span>{{orderdetail.count}}</span></li>
+									<li class="col04"></li>
 								</ul>
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="/static/images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
-								</ul>
-							</td>
-							<td width="15%">33.60元</td>
-							<td width="15%">已付款</td>
-							<td width="15%"><a href="#" class="oper_btn">查看物流</a></td>
+							{%endfor%}
+							 </td>
+							<td width="15%" class='total_price'>0元</td>
+							<td width="15%" class="stay2_pay">待付款</td>
+							<td width="15%">
+								<a href="/pay{{order.oid}}/" class="oper_btn">去付款</a></td>
 						</tr>
 					</tbody>
 				</table>
-
+				{%endfor%}
 				<div class="pagenation">
 					<a href="#"><上一页</a>
 					<a href="#" class="active">1</a>
